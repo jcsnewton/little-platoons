@@ -75,7 +75,7 @@ def Delta_w(n, m, w, x):
 
 # ===================== Equilibria =====================
 
-def find_equilibria(n, m, w, grid=4001, endpoint_tol=1e-6):
+def find_equilibria(n, m, w, grid=2001, endpoint_tol=1e-6):
     xs = np.linspace(0.0, 1.0, grid)
     fs = np.array([Delta_w(n, m, w, x) for x in xs])
 
@@ -262,7 +262,7 @@ JUMP_TOL = 0.03
 
 @st.cache_data(show_spinner=False)
 def branches_over_omega(n, m, intercept, slope, w_min, w_max, n_w,
-                       seed_every=1, scan_grid=1201, tol_match=0.015):
+                       seed_every=1, scan_grid=401, tol_match=0.015):
     omegas = np.linspace(float(w_min), float(w_max), int(n_w))
 
     def w_of(omega):
@@ -361,7 +361,7 @@ def plot_branches(omegas, branches):
 # ===================== Streamlit UI =====================
 
 st.set_page_config(layout="wide")
-st.title("Coalitional Procedural Rationality dynamic")
+st.title("Coalitional Procedural Rationality")
 
 with st.sidebar:
     st.header("Core parameters")
@@ -385,7 +385,7 @@ with st.sidebar:
     st.divider()
 
     st.header("Tab 2: Parameterized comparison")
-    st.caption("Affine family w(ω) = intercept + ω*slope, with multiplication componentwise. \n Negative w(ω) are not permitted. Positive w(ω) are normalized to sum to 1.")
+    st.caption("Affine family w(ω) = intercept + ω*slope, with multiplication componentwise. \nNegative w(ω) are not permitted. Positive w(ω) are normalized to sum to 1.")
     intercept_str = st.text_input("Intercept vector (length n)", "1 0 0 0")
     slope_str = st.text_input("Slope vector (length n)", "-2 1 1 0")
 
@@ -395,9 +395,9 @@ with st.sidebar:
         omega_max_user = st.number_input("Manual ω max (≤ automatic ω max)", 0.0, 1.0, 1.0, format="%.6f")
     else:
         omega_min_user = 0.0
-        omega_max_user = 1.0  # ignored unless restrict_omega=True
+        omega_max_user = 1.0
 
-    n_w = st.number_input("Number of ω points used for plot", 5, 301, 100, step=1)
+    n_w = st.number_input("Number of ω points used for plot", 5, 201, 80, step=1)
 
 
 tab1, tab2 = st.tabs(
@@ -407,7 +407,7 @@ tab1, tab2 = st.tabs(
 
 # ---------- Tab 1 ----------
 with tab1:
-    st.subheader("Drift and equilibria")
+    st.subheader("Drift, equilibria and basins of attraction")
 
     ok1 = True
     try:
@@ -425,7 +425,7 @@ with tab1:
         ok1 = False
 
     if ok1:
-        roots = find_equilibria(int(n), int(m), w, grid=4001)
+        roots = find_equilibria(int(n), int(m), w, grid=2001)
         st.pyplot(plot_drift(int(n), int(m), w, roots, xmin, xmax), use_container_width=True)
 
         st.subheader("Equilibria (table)")
@@ -499,7 +499,7 @@ with tab2:
                 float(w_min), float(w_max),
                 int(n_w),
                 seed_every=1,
-                scan_grid=1201,
+                scan_grid=401,
                 tol_match=0.015
             )
         st.pyplot(plot_branches(omegas, branches), use_container_width=True)
